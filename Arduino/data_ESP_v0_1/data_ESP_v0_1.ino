@@ -29,15 +29,15 @@ const int thermoCLK =  2;
 //const int thermoCS0 = 35;
 const int thermoCS1 = 32;
 const int thermoCS2 = 33;
-//const int thermoCS3 = 34;   // bohužel mám dva na input only!!!!!
+//const int thermoCS3 = 34;   // bohužel mám dva na input only!!!!! takže umím číst jen dva
 
 //MAX6675 thermo0(thermoCLK, thermoCS0, thermoDO);
 MAX6675 thermo1(thermoCLK, thermoCS1, thermoDO);
 MAX6675 thermo2(thermoCLK, thermoCS2, thermoDO);
-MAX6675 thermo3(thermoCLK, thermoCS3, thermoDO);
+//MAX6675 thermo3(thermoCLK, thermoCS3, thermoDO);
 
 //Proměnné termočlánku
-unsigned int thermo[4];
+byte thermo[4];
 
 //-----------------------------------------------
 // Bluetooth-------------------------------------
@@ -150,7 +150,7 @@ void loop() {
     }
   }
   // Nacitani sensorů
-  if (newmillis - oldmillis > 200 ) {
+  if (newmillis - oldmillis > 250 ) {
      for (int i=0; i<1; i++){
      canSender(i);
      }
@@ -216,21 +216,21 @@ void tiskni(){
   //Serial.println("Tisknu data");
   
   //analog-multiplexer
-  for (int i = 0; i < 16; i++){
-    Serial.print(napetiSIG[i]);
-    Serial.print(",");
-  }
+  //for (int i = 0; i < 16; i++){
+    //Serial.print(napetiSIG[i]);
+    //Serial.print(",");
+  //}
   
   //termočlánky
   for (int i = 0; i < 4; i++){
-    //Serial.print(thermo[i]);
-    //Serial.print(",");
+    Serial.print(thermo[i]);
+    Serial.print(",");
   }
-  //counter
+  /*/counter
   for (int i = 0; i < 4; i++){
     //Serial.print(RPM[i]);
     if (i != 4) Serial.print(",");
-  }
+  }*/
   Serial.println();
 }
 
@@ -260,10 +260,10 @@ void tiskniBT(){
 // -----------načítání termočlánků---------------
 
 void nactiThermo(){
-  thermo[0] = (thermo0.readCelsius()/0.25);
-  thermo[1] = (thermo1.readCelsius()/0.25);
-  thermo[2] = (thermo2.readCelsius()/0.25);
-  thermo[3] = (thermo3.readCelsius()/0.25);
+  //thermo[0] = (thermo0.readCelsius()/0.25);
+  thermo[1] = (thermo1.readCelsius());
+  thermo[2] = (thermo2.readCelsius());
+  //thermo[3] = (thermo3.readCelsius()/0.25);
 }
 
 
