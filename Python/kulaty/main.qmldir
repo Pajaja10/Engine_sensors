@@ -1,0 +1,3 @@
+RoundGauge ./RoundGauge.qml
+Dashboard ./Dashboard.qml
+

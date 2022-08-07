@@ -1,0 +1,6 @@
+Speed ./Speed.qml
+Speed1 ./Speed1.qml
+Fuel ./Fuel.qml
+Fuel1 ./Fuel1.qml
+Gear ./Gear.qml
+Gear1 ./Gear1.qml

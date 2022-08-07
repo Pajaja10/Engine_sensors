@@ -1,0 +1,67 @@
+import QtQuick 2.4
+import SDK 1.0
+import QtQuick.Layouts 1.1
+
+
+Rectangle {
+    id: root
+    Layout.alignment: Layout.Center
+    width: 160
+    height: 145
+    color: "#181818"
+    property string suffix: " V"
+    property int minVal: 0
+    property int maxVal: 4
+    property var actValueList: []
+    property double actVal: 0
+
+
+
+    Connections{
+        target: batteryWidget
+                property var actValueList
+        onVstupyChanged: {
+            actValueList = batteryWidget.vstupyValue
+            actVal = actValueList[1]
+        }
+    }
+
+    Rectangle {
+        Layout.alignment: Layout.Center
+        width: 320
+        height: 290
+        color: "#1d1d35"
+        border.color: "#000000"
+        border.width: 3
+        Text {
+            id: name
+            text: "Napeti na vstupu"
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 5
+            font.pointSize: 13
+            color: "#6affcd"
+        }
+
+        RadialBar {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            width: parent.width / 1.4
+            height: width - (0.001) * actVal
+            penStyle: Qt.RoundCap
+            progressColor: "#6affcd"
+            foregroundColor: "#191a2f"
+            dialWidth: 11
+            minValue: minVal
+            maxValue: maxVal
+            value: actVal
+            suffixText: suffix
+            textFont {
+                family: "Halvetica"
+                italic: false
+                pointSize: 18
+            }
+            textColor: "#00ffc1"
+        }
+    }
+}

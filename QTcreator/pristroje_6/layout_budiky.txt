@@ -1,0 +1,8 @@
+class MainWindow(QtWidgets.QMainWindow):
+ 
+    def __init__(self, parent=None):
+        QtWidgets.QMainWindow.__init__(self, parent)
+        self.layout=QHBoxLayout(self,0,1,"Layout")
+        self.qmlWidget = QtQuickWidgets.QQuickWidget()
+        self.setCentralWidget(self.qmlWidget)
+        self.qmlWidget.setResizeMode(QtQuickWidgets.QQuickWidget.SizeRootObjectToView)
