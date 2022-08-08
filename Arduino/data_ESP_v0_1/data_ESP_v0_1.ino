@@ -26,10 +26,10 @@ byte napetiSIG[16];
 //nastavení pinů
 const int thermoDO  = 15;
 const int thermoCLK =  2;
-//const int thermoCS0 = 35;
+//const int thermoCS0 = 35;   // bohužel mám  na input only!!!!! takže neumí vypnout
 const int thermoCS1 = 32;
 const int thermoCS2 = 33;
-//const int thermoCS3 = 34;   // bohužel mám dva na input only!!!!! takže umím číst jen dva
+//const int thermoCS3 = 34;   // bohužel mám  na input only!!!!! takže neumí vypnout
 
 //MAX6675 thermo0(thermoCLK, thermoCS0, thermoDO);
 MAX6675 thermo1(thermoCLK, thermoCS1, thermoDO);
