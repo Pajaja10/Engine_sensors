@@ -3,6 +3,8 @@ Termočlánky	ok
 Multiplixer	ok
 Napětí		??
 teplota		??
+https://create.arduino.cc/projecthub/Marcazzan_M/how-easy-is-it-to-use-a-thermistor-e39321
+
 tlak	  	??
 hladina   ??
 HALL      ??
