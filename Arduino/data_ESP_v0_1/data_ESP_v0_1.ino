@@ -21,9 +21,10 @@ float hodnotaAnalog[16];
 
 //teplota:
 
-#define beta 3997.3 //the beta of the thermistor
-#define resistance 10 //the value of the pull-down resistor
-
+const float beta = 3997.3; //the beta of the thermistor
+const float RT = 10; //the value of the pull-down resistor
+const float RT0 =;
+const float T0 = +273.15;
 //-----------------------------------------------
 // Termočlánky MAX6675---------------------------
 

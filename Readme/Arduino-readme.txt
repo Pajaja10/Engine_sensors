@@ -1,7 +1,7 @@
 -----Funkčnost----------------------------
 Termočlánky	ok
 Multiplixer	ok
-Napětí		??
+Napětí		OK max nějaká kapacita
 teplota		??
 https://create.arduino.cc/projecthub/Marcazzan_M/how-easy-is-it-to-use-a-thermistor-e39321
 
