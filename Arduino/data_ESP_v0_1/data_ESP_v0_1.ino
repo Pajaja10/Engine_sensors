@@ -7,16 +7,22 @@
 // Multiplexer 16 kanálů CD74HC4067--------------
 
 // nastavení ovládacích pinů S0-S3 multiplexeru
-const char pinS0 = 27;
-const char pinS1 = 14;
-const char pinS2 = 25;
-const char pinS3 = 26;
+const byte pinS0 = 27;
+const byte pinS1 = 14;
+const byte pinS2 = 25;
+const byte pinS3 = 26;
 
 // nastavení výstupního pinu SIG multiplexeru
-const char pinSIG = 12;
+const byte pinSIG = 12;
 
 //Proměnné analogu
-byte napetiSIG[16];
+float napetiSIG[16];
+float hodnotaAnalog[16];
+
+//teplota:
+
+#define beta 3997.3 //the beta of the thermistor
+#define resistance 10 //the value of the pull-down resistor
 
 //-----------------------------------------------
 // Termočlánky MAX6675---------------------------
@@ -24,11 +30,11 @@ byte napetiSIG[16];
 #include "max6675.h"    //knihovna
 
 //nastavení pinů
-const int thermoDO  = 15;
-const int thermoCLK =  2;
+const byte thermoDO  = 15;
+const byte thermoCLK =  2;
 //const int thermoCS0 = 35;   // bohužel mám  na input only!!!!! takže neumí vypnout
-const int thermoCS1 = 32;
-const int thermoCS2 = 33;
+const byte thermoCS1 = 32;
+const byte thermoCS2 = 33;
 //const int thermoCS3 = 34;   // bohužel mám  na input only!!!!! takže neumí vypnout
 
 //MAX6675 thermo0(thermoCLK, thermoCS0, thermoDO);
@@ -206,7 +212,12 @@ int nactiAnalog(){
     }
     // načtení analogové hodnoty z pinu SIG
     napetiSIG[i] = analogRead(pinSIG);
+    if ( i == 0) hodnotaAnalog[0] = napetiSIG[0] * (3.3/4095) * 5;
+    if (0 < i < 3) tempC = beta /(log((1025.0 * resistance / napetiSIG[i] - resistance) / resistance) + beta / 298.0) - 273.0;
+       
   }
+  
+
 }
 //-----------------------------------------------
 // ---------------tisk do serialu----------------
@@ -216,10 +227,10 @@ void tiskni(){
   //Serial.println("Tisknu data");
   
   //analog-multiplexer
-  //for (int i = 0; i < 16; i++){
-    //Serial.print(napetiSIG[i]);
-    //Serial.print(",");
-  //}
+  for (int i = 0; i < 16; i++){
+    Serial.print(napetiSIG[i]);
+    Serial.print(",");
+  }
   
   //termočlánky
   for (int i = 0; i < 4; i++){
