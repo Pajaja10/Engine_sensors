@@ -20,11 +20,13 @@ float napetiSIG[16];
 float hodnotaAnalog[16];
 
 //teplota:
+#include <math.h>
 
 const float beta = 3997.3; //the beta of the thermistor
-const float RT = 10; //the value of the pull-down resistor
+const float RT = 10000; //the value of the pull-down resistor
 const float RT0 =;
 const float T0 = +273.15;
+
 //-----------------------------------------------
 // Termočlánky MAX6675---------------------------
 
@@ -214,7 +216,12 @@ int nactiAnalog(){
     // načtení analogové hodnoty z pinu SIG
     napetiSIG[i] = analogRead(pinSIG);
     if ( i == 0) hodnotaAnalog[0] = napetiSIG[0] * (3.3/4095) * 5;
-    if (0 < i < 3) tempC = beta /(log((1025.0 * resistance / napetiSIG[i] - resistance) / resistance) + beta / 298.0) - 273.0;
+    if (0 < i < 3) { hodnotaAnalog[i] = napetiSIG[i] * (3.3/4095);      // realne napeti na pinu
+                    hodnotaAnalog[i] = 10000 / (1 + 3.3/hodnotaAnalog[i]);    //obyč dělič napětí, výstup odpor na čidle, pull-up 10k
+                    //hodnotaAnalog[i] = 418.47 * pow(hodnotaAnalog[i], -0,364);   //rovnice dle excel - celá křivka
+                    hodnotaAnalog[i] = -32.89 * log(hodnotaAnalog[i]) + 231,58;  //rovnice dle excel - pouze část křivky kolem 100°C
+                   }
+                    
        
   }
   
