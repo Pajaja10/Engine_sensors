@@ -4,6 +4,8 @@ Multiplixer	ok
 Napětí		OK max nějaká kapacita
 teplota		??
 https://create.arduino.cc/projecthub/Marcazzan_M/how-easy-is-it-to-use-a-thermistor-e39321
+https://navody.dratek.cz/arduino-projekty/mereni-teploty-s-termistorem.html
+https://e-manuel.cz/kapitoly/polovodice/praktika/termistorovy-teplomer-s-arduinem/
 
 tlak	  	??
 hladina   ??
