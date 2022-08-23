@@ -1,3 +1,5 @@
+One psi is approximately 6895 pascals (N/m2)
+
 --30 psi
 Input: 0-30 psi
 Output: 0.5V~4.5V linear voltage output. 0 psi outputs 0.5V, 15psi outputs 2.5V, 30 psi outputs 4.5V.
