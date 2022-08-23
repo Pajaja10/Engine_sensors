@@ -1,4 +1,5 @@
-One psi is approximately 6895 pascals (N/m2)
+One psi is approximately 6895 pascals (N/m2) 1 psi = 0.0689475729 bar
+1 bar = 14.503773773 psi
 
 --30 psi
 Input: 0-30 psi
