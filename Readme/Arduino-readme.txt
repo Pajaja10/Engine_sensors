@@ -8,6 +8,7 @@ https://navody.dratek.cz/arduino-projekty/mereni-teploty-s-termistorem.html
 https://e-manuel.cz/kapitoly/polovodice/praktika/termistorovy-teplomer-s-arduinem/
 
 tlak	  	??
+problém s 5V
 hladina   ??
 HALL      ??
 BMP280		??
