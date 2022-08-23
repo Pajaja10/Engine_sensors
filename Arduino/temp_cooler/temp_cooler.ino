@@ -36,7 +36,7 @@ void loop() {
 
   teplotaRaw = analogRead(teplotniPin);   //převodník
   teplotaV = teplotaRaw * 3.3 / 4095 ;     // realne napeti na pinu, ESP neumí od 0 ale od 0,1
-  teplotaOhm = 220 / (1 + 3.3/teplotaV);// odpor čidla
+  teplotaOhm = teplotaV * 220 / (3.3 - teplotaV);// odpor čidla
 
   //***********rovnice dle excel, 2 typy, cela křivka + kolem 100°C 
 

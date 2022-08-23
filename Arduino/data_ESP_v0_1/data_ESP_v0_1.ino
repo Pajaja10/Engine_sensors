@@ -214,7 +214,7 @@ void upravaDat() {
   for (int i = 0; i < 16; i ++){
     if ( i == 0) {hodnotaAnalog[i] = napetiSIG[i] * 5 * 3.3/4095;}
     if (i > 0 && i < 5) { hodnotaAnalog[i] = napetiSIG[i] * 3.3/4095 + 0.1;      // ESP má problém od 0, začíná od 0,1 do 3,2; realne napeti na pinu
-                          hodnotaAnalog[i] = 10000 / (1 + 3.3/hodnotaAnalog[i]);    //obyč dělič napětí, výstup odpor na čidle, pull-up 10k POZOR dal jsem 220R
+                          hodnotaAnalog[i] = hodnotaAnalog[i] * 220 / (3.3 - hodnotaAnalog[i]);    //obyč dělič napětí, výstup odpor na čidle, pull-up 10k POZOR dal jsem 220R
                           //hodnotaAnalog[i] = 418.47 * pow(hodnotaAnalog[i], -0.364);   //rovnice dle excel - celá křivka
                           hodnotaAnalog[i] = -32.89 * log(hodnotaAnalog[i]) + 231.58;  //rovnice dle excel - pouze část křivky kolem 100°C
                    }

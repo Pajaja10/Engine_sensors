@@ -2,14 +2,15 @@
 Termočlánky	ok
 Multiplixer	ok
 Napětí		OK max nějaká kapacita
-teplota		OK na UNO, musím dát do ESP32
+teplota		OK na UNO, musím dát do ESP32 
 https://create.arduino.cc/projecthub/Marcazzan_M/how-easy-is-it-to-use-a-thermistor-e39321
 https://navody.dratek.cz/arduino-projekty/mereni-teploty-s-termistorem.html
 https://e-manuel.cz/kapitoly/polovodice/praktika/termistorovy-teplomer-s-arduinem/
 
-tlak	  	??
-problém s 5V
-hladina   ??
+tlak	  	čekám na rovnici
+problém s 5V, ale něco naměřím, chce to vyzkoušet v práci, esp32 + lcd + redukce npt na g
+
+hladina   OK, stejné jako teplota - odporové, pouze rovnice křivky - až vyzkouším podle litrů
 HALL      ??
 BMP280		??
 EEPROM 1	??
