@@ -2,7 +2,7 @@
 Termočlánky	ok
 Multiplixer	ok
 Napětí		OK max nějaká kapacita
-teplota		??
+teplota		OK na UNO, musím dát do ESP32
 https://create.arduino.cc/projecthub/Marcazzan_M/how-easy-is-it-to-use-a-thermistor-e39321
 https://navody.dratek.cz/arduino-projekty/mereni-teploty-s-termistorem.html
 https://e-manuel.cz/kapitoly/polovodice/praktika/termistorovy-teplomer-s-arduinem/
@@ -47,7 +47,17 @@ termo - 4piny
 napájení + HALL + hladina
 12v, gnd, 2x H, +, -, HL, HL -> 8pin
 
+lepší----------------------------------
+4 tlaky  - 8pinu
+4xS + 2x GND + 2x3V3
 
+termo - 4piny + teplota (1 pin, gnd je k motoru)  - 8pin
+2x+, 2x- + 4xS
+
+napájení + HALL + hladina
+12v, gnd, 2x H, 3V3, GND, HL, HL -> 8pin
+
+konektory do U
 
 
 ---------programovani ESP32-------------------------------------------------------
