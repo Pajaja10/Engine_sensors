@@ -22,10 +22,10 @@ float hodnotaAnalog[16];
 //teplota:
 #include <math.h>
 
-const float beta = 3997.3; //the beta of the thermistor
-const float RT = 10000; //the value of the pull-down resistor
-const float RT0 =;
-const float T0 = +273.15;
+//const float beta = 3997.3; //the beta of the thermistor
+//const float RT = 10000; //the value of the pull-down resistor
+//const float RT0 = 15;
+//const float T0 = 273.15;
 
 //-----------------------------------------------
 // Termočlánky MAX6675---------------------------
@@ -153,23 +153,13 @@ void loop() {
   newmillis = millis();
   counter();
   nactiAnalog();
-  for (int i = 0; i<4; i++){
-    for (int j = 0; j<7; j++) {
-      dataCan[i][j] = napetiSIG[j];
-    }
-  }
+  upravaDat();
+ 
+ 
   // Nacitani sensorů
   if (newmillis - oldmillis > 250 ) {
-     for (int i=0; i<1; i++){
-     canSender(i);
-     }
     nactiThermo();
     tiskni();
-    tiskniBT();
-    //for (int i = 0; i<7; i++){
-      //dataCan[0][i] = napetiSIG[i];
-    //}
-    //canSender(0);
     oldmillis = millis();
     }
 
@@ -215,17 +205,20 @@ int nactiAnalog(){
     }
     // načtení analogové hodnoty z pinu SIG
     napetiSIG[i] = analogRead(pinSIG);
-    if ( i == 0) hodnotaAnalog[0] = napetiSIG[0] * (3.3/4095) * 5;
-    if (0 < i < 3) { hodnotaAnalog[i] = napetiSIG[i] * (3.3/4095);      // realne napeti na pinu
-                    hodnotaAnalog[i] = 10000 / (1 + 3.3/hodnotaAnalog[i]);    //obyč dělič napětí, výstup odpor na čidle, pull-up 10k
-                    //hodnotaAnalog[i] = 418.47 * pow(hodnotaAnalog[i], -0,364);   //rovnice dle excel - celá křivka
-                    hodnotaAnalog[i] = -32.89 * log(hodnotaAnalog[i]) + 231,58;  //rovnice dle excel - pouze část křivky kolem 100°C
-                   }
-                    
-       
   }
-  
+}
 
+//-----------------------------------------Uprava dat------------------------------
+
+void upravaDat() {
+  for (int i = 0; i < 16; i ++){
+    if ( i == 0) {hodnotaAnalog[i] = napetiSIG[i] * 5 * 3.3/4095;}
+    if (i > 0 && i < 5) { hodnotaAnalog[i] = napetiSIG[i] * 3.3/4095 + 0.1;      // ESP má problém od 0, začíná od 0,1 do 3,2; realne napeti na pinu
+                          hodnotaAnalog[i] = 10000 / (1 + 3.3/hodnotaAnalog[i]);    //obyč dělič napětí, výstup odpor na čidle, pull-up 10k POZOR dal jsem 220R
+                          //hodnotaAnalog[i] = 418.47 * pow(hodnotaAnalog[i], -0.364);   //rovnice dle excel - celá křivka
+                          hodnotaAnalog[i] = -32.89 * log(hodnotaAnalog[i]) + 231.58;  //rovnice dle excel - pouze část křivky kolem 100°C
+                   }
+    }
 }
 //-----------------------------------------------
 // ---------------tisk do serialu----------------
@@ -235,11 +228,17 @@ void tiskni(){
   //Serial.println("Tisknu data");
   
   //analog-multiplexer
-  for (int i = 0; i < 16; i++){
+  for (int i = 0; i < 3; i++){
+    Serial.print(hodnotaAnalog[i]);
+    Serial.print(",");
+  }
+    Serial.println();
+
+  for (int i = 0; i < 3; i++){
     Serial.print(napetiSIG[i]);
     Serial.print(",");
   }
-  
+    Serial.println(); 
   //termočlánky
   for (int i = 0; i < 4; i++){
     Serial.print(thermo[i]);
