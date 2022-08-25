@@ -12,6 +12,8 @@ problém s 5V, ale něco naměřím, chce to vyzkoušet v práci, esp32 + lcd + 
 
 hladina   OK, stejné jako teplota - odporové, pouze rovnice křivky - až vyzkouším podle litrů
 HALL      STM8 ??
+https://makersportal.com/blog/2018/10/3/arduino-tachometer-using-a-hall-effect-sensor-to-measure-rotations-from-a-fan
+
 BMP280		??
 EEPROM 1	??
 EEPROM 2	??
