@@ -1,0 +1,1 @@
+https://forum.arduino.cc/t/fc-03-and-attachinterrupt-problems/330321/20
