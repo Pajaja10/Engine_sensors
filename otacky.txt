@@ -1,2 +1,8 @@
 https://forum.arduino.cc/t/fc-03-and-attachinterrupt-problems/330321/20
+
+tohle asi vyřeší chybu:
 https://forum.arduino.cc/t/speed-sensor-and-problem-with-interruption/575603/17
+
+tohle se mi líbí:
+https://how2electronics.com/digital-tachometer-ir-sensor-arduino/
+
