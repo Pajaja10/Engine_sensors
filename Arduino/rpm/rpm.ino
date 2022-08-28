@@ -1,45 +1,45 @@
-#include <Arduino.h>
-#include <U8x8lib.h>
-#include <SPI.h>
-#include <Wire.h>
-U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE);
-unsigned long rpmtime;
-float rpmfloat;
-unsigned int rpm;
-bool tooslow = 1;
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
+int sensor = 11;
+unsigned long start_time = 0;
+unsigned long end_time = 0;
+int steps=0;
+float steps_old=0;
+float temp=0;
+float rps=0;
 
-void setup() {
-  u8x8.begin();
-  u8x8.setFont(u8x8_font_profont29_2x3_f);
-  TCCR1A = 0;
-  TCCR1B = 0;
-  TCCR1B |= (1 << CS12); //Prescaler 256
-  TIMSK1 |= (1 << TOIE1); //enable timer overflow
-  pinMode(2, INPUT);
-  attachInterrupt(0, RPM, FALLING);
+void setup() 
+{
+  Serial.begin(9600);
+  Serial.println("Ha");
+  //lcd.begin(16, 2);
+  pinMode(sensor,INPUT_PULLUP);
+ // lcd.setCursor(0,0);
+  //lcd.print(" STEPS - 0");
+ // lcd.setCursor(0,1);
+ // lcd.print(" RPS   - 0.00");
 }
-
-ISR(TIMER1_OVF_vect) {
-  tooslow = 1;
-}
-
-void loop() {
-  delay(1000);
-  if (tooslow == 1) {
-    u8x8.clear();
-    u8x8.drawString(1, 0, "SLOW!");
-  }
-  else {
-    rpmfloat = 120 / (rpmtime/ 31250.00);
-    rpm = round(rpmfloat);
-    u8x8.clear();
-    u8x8.setCursor(1,0);
-    u8x8.print(rpm);
-  }
-}
-
-void RPM () {
-  rpmtime = TCNT1;
-  TCNT1 = 0;
-  tooslow = 0;
+ 
+void loop()
+{Serial.println("Zacatek");
+ start_time=millis();
+ end_time=start_time+1000;
+ while(millis()<end_time)
+ {  Serial.println("Cyklus");
+   if(digitalRead(sensor))
+   {
+    steps=steps+1; 
+    while(digitalRead(sensor));
+   }
+   //lcd.setCursor(9,0);
+   Serial.println(steps);
+   //lcd.print("   ");
+ }
+    //temp=steps-steps_old;
+   // steps_old=steps;
+  //  rps=(temp/20);
+  //  lcd.setCursor(9,1);
+  //  lcd.print(rps);
+  //  lcd.print("   ");
+  Serial.println("Konce");
 }
