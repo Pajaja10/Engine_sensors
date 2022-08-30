@@ -19,7 +19,7 @@ BMP280		??
 EEPROM 1	??
 EEPROM 2	??
 CAN		    ??
-WIFI Updater  ??
+WIFI Updater  OK - pozor, program má moc, musíš dát dev module a without issfts nebo tak nějak
 https://iotespresso.com/how-to-set-partitions-in-esp32/
 
 
