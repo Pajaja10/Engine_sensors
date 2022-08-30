@@ -3,6 +3,110 @@
 //-----------------------------------------------
 //-----------------------------------------------
 
+//--------------WIFI updater------------------------
+// IP: 192.168.1.130
+
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
+#include <Update.h>
+
+const char* host = "esp32";
+const char* ssid = "u_nas_doma";
+const char* password = "asdf1234";
+
+WebServer server(80);
+
+/*
+ * Login page
+ */
+
+const char* loginIndex =
+ "<form name='loginForm'>"
+    "<table width='20%' bgcolor='A09F9F' align='center'>"
+        "<tr>"
+            "<td colspan=2>"
+                "<center><font size=4><b>ESP32 Login Page</b></font></center>"
+                "<br>"
+            "</td>"
+            "<br>"
+            "<br>"
+        "</tr>"
+        "<tr>"
+             "<td>Username:</td>"
+             "<td><input type='text' size=25 name='userid'><br></td>"
+        "</tr>"
+        "<br>"
+        "<br>"
+        "<tr>"
+            "<td>Password:</td>"
+            "<td><input type='Password' size=25 name='pwd'><br></td>"
+            "<br>"
+            "<br>"
+        "</tr>"
+        "<tr>"
+            "<td><input type='submit' onclick='check(this.form)' value='Login'></td>"
+        "</tr>"
+    "</table>"
+"</form>"
+"<script>"
+    "function check(form)"
+    "{"
+    "if(form.userid.value=='admin' && form.pwd.value=='admin')"
+    "{"
+    "window.open('/serverIndex')"
+    "}"
+    "else"
+    "{"
+    " alert('Error Password or Username')/*displays error message*/"
+    "}"
+    "}"
+"</script>";
+
+/*
+ * Server Index Page
+ */
+
+const char* serverIndex =
+"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
+"<form method='POST' action='#' enctype='multipart/form-data' id='upload_form'>"
+   "<input type='file' name='update'>"
+        "<input type='submit' value='Update'>"
+    "</form>"
+ "<div id='prg'>progress: 0%</div>"
+ "<script>"
+  "$('form').submit(function(e){"
+  "e.preventDefault();"
+  "var form = $('#upload_form')[0];"
+  "var data = new FormData(form);"
+  " $.ajax({"
+  "url: '/update',"
+  "type: 'POST',"
+  "data: data,"
+  "contentType: false,"
+  "processData:false,"
+  "xhr: function() {"
+  "var xhr = new window.XMLHttpRequest();"
+  "xhr.upload.addEventListener('progress', function(evt) {"
+  "if (evt.lengthComputable) {"
+  "var per = evt.loaded / evt.total;"
+  "$('#prg').html('progress: ' + Math.round(per*100) + '%');"
+  "}"
+  "}, false);"
+  "return xhr;"
+  "},"
+  "success:function(d, s) {"
+  "console.log('success!')"
+ "},"
+ "error: function (a, b, c) {"
+ "}"
+ "});"
+ "});"
+ "</script>";
+//---------------------------------------------------------
+
+
 //-----------------------------------------------
 // Multiplexer 16 kanálů CD74HC4067--------------
 
@@ -46,7 +150,7 @@ MAX6675 thermo2(thermoCLK, thermoCS2, thermoDO);
 //MAX6675 thermo3(thermoCLK, thermoCS3, thermoDO);
 
 //Proměnné termočlánku
-byte thermo[4];
+byte thermo[2];
 
 //-----------------------------------------------
 // Bluetooth-------------------------------------
@@ -67,47 +171,83 @@ BluetoothSerial SerialBT;
 
 unsigned char dataCan[4][7];    // 4 řádky se 6 proměnnýma
 
-//-----------------------------------------------
-// Interupt-------------------------------------
-
-//nastavení pinů
-const char encoder_pin0 = 13;
-const char encoder_pin1 = 16;
-const char encoder_pin2 = 36;
-const char encoder_pin3 = 39;
-
-//čas prvního a posledního pulzu
-volatile unsigned int startTime[] = {0,0,0,0};
-volatile unsigned int stopTime[] = {0,0,0,0};
-
-//interval aktualizace
-volatile const unsigned int updateInterval = 4;
-
-//čítače
-volatile unsigned int pulseCount[4] = {0,0,0,0};
-volatile static unsigned long last_interrupt_time[] = {0,0,0,0};
-volatile unsigned long interrupt_time[4];
-
-//počet pulzů na otáčku
-const unsigned int blades = 2;
-
-//spočítané otáčky
-unsigned int RPM[4];
-
-int k = 0;
 
 //-----------------------------------------------
 // Proměnné pro loop-----------------------------
 
 unsigned long newmillis;
 unsigned long oldmillis = 0;
-byte randNumber;
+
 
 //-----------------------------------------------------------------------------------------------------------  
 // -----------------SETUP------------------------
   
 void setup() {
   //----------------------------------------------- 
+  // komunikace po sériové lince rychlostí 9600 baud
+  Serial.begin(9600);
+ 
+  //-------------WIFI updater-------------------------
+  // Connect to WiFi network
+  WiFi.begin(ssid, password);
+  Serial.println("");
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  /*use mdns for host name resolution*/
+  if (!MDNS.begin(host)) { //http://esp32.local
+    Serial.println("Error setting up MDNS responder!");
+    while (1) {
+      delay(1000);
+    }
+  }
+  Serial.println("mDNS responder started");
+  /*return index page which is stored in serverIndex */
+  server.on("/", HTTP_GET, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/html", loginIndex);
+  });
+  server.on("/serverIndex", HTTP_GET, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/html", serverIndex);
+  });
+  /*handling uploading firmware file */
+  server.on("/update", HTTP_POST, []() {
+    server.sendHeader("Connection", "close");
+    server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+    ESP.restart();
+  }, []() {
+    HTTPUpload& upload = server.upload();
+    if (upload.status == UPLOAD_FILE_START) {
+      Serial.printf("Update: %s\n", upload.filename.c_str());
+      if (!Update.begin(UPDATE_SIZE_UNKNOWN)) { //start with max available size
+        Update.printError(Serial);
+      }
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+      /* flashing firmware to ESP*/
+      if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
+        Update.printError(Serial);
+      }
+    } else if (upload.status == UPLOAD_FILE_END) {
+      if (Update.end(true)) { //true to set the size to the current progress
+        Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
+      } else {
+        Update.printError(Serial);
+      }
+    }
+  });
+  server.begin();
+
+  //------------------------------------------------------
   //Multiplexer
   // nastavení ovládacích pinů jako výstupních
   pinMode(pinS0, OUTPUT); 
@@ -116,14 +256,6 @@ void setup() {
   pinMode(pinS3, OUTPUT);
   Wire.begin();
 
-  //max
-
-
-  
-  //----------------------------------------------- 
-  // komunikace po sériové lince rychlostí 9600 baud
-  Serial.begin(9600);
-  
   //----------------------------------------------- 
   // Bluetooth
   SerialBT.begin("DATA-EA81"); //Bluetooth device name
@@ -134,24 +266,19 @@ void setup() {
     Serial.println("Starting CAN failed!");
     while (1);
   }
-  
-  //----------------------------------------------- 
-  // interrupt
-  pinMode(encoder_pin0, INPUT);
-  pinMode(encoder_pin1, INPUT);
-  pinMode(encoder_pin2, INPUT);
-  pinMode(encoder_pin3, INPUT);
-  attachInterrupt(digitalPinToInterrupt(encoder_pin0), intcounter0, HIGH);
-  attachInterrupt(digitalPinToInterrupt(encoder_pin1), intcounter1, HIGH);
-  attachInterrupt(digitalPinToInterrupt(encoder_pin2), intcounter2, HIGH);
-  attachInterrupt(digitalPinToInterrupt(encoder_pin3), intcounter3, HIGH);
+
 }
 //------------------------------------------------------------------------------------------------------------
 // -----------------LOOP-------------------------
 
 void loop() {
+  //-----------------WIFi updaret-------------
+  server.handleClient();
+  delay(1);
+  //----------------------
+  
   newmillis = millis();
-  counter();
+
   nactiAnalog();
   upravaDat();
  
@@ -159,7 +286,7 @@ void loop() {
   // Nacitani sensorů
   if (newmillis - oldmillis > 250 ) {
     nactiThermo();
-    tiskni();
+    tiskniBT();
     oldmillis = millis();
     }
 
@@ -298,60 +425,4 @@ void canSender(int c){
     //Serial.println(dataCan[c][i]);
   }
   CAN.endPacket();
-}
-
-
-//-----------------------------------------------
-// ----------------interrupt---------------------
-void intcounter0(){
-  //Update count
-  interrupt_time[0] = millis();
-  if (interrupt_time[0] - last_interrupt_time[0] > 10) {
-    pulseCount[0]++;
-    if (pulseCount[0] == 1) {startTime[0] = millis(); stopTime[0] = 0;}       //pokud první načti start, vynuluj stop
-    if (pulseCount[0] == updateInterval) stopTime[0] = millis();           //pokud např 4x poslední načti stop
-    last_interrupt_time[0] = interrupt_time[0];
-  }
-  
-  }
-
-void intcounter1(){
-  //Update count
-  interrupt_time[1] = millis();
-  if (interrupt_time[1] - last_interrupt_time[1] > 10) {
-    pulseCount[1]++;
-    if (pulseCount[1] == 1) {startTime[1] = millis(); stopTime[1] = 0;}       //pokud první načti start, vynuluj stop
-    if (pulseCount[1] == updateInterval) stopTime[1] = millis();           //pokud např 4x poslední načti stop
-    last_interrupt_time[1] = interrupt_time[1];
-  }
-  
-  }void intcounter2(){
-  //Update count
-  interrupt_time[2] = millis();
-  if (interrupt_time[2] - last_interrupt_time[2] > 10) {
-    pulseCount[2]++;
-    if (pulseCount[2] == 1) {startTime[2] = millis(); stopTime[2] = 0;}       //pokud první načti start, vynuluj stop
-    if (pulseCount[2] == updateInterval) stopTime[2] = millis();           //pokud např 4x poslední načti stop
-    last_interrupt_time[2] = interrupt_time[2];
-  }
-  
-  }void intcounter3(){
-  //Update count
-  interrupt_time[3] = millis();
-  if (interrupt_time[3] - last_interrupt_time[3] > 10) {
-    pulseCount[3]++;
-    if (pulseCount[3] == 1) {startTime[3] = millis(); stopTime[3] = 0;}       //pokud první načti start, vynuluj stop
-    if (pulseCount[3] == updateInterval) stopTime[0] = millis();           //pokud např 4x poslední načti stop
-    last_interrupt_time[3] = interrupt_time[3];
-  }
-  
-  }
-
-void counter(){
-  for (int i = 0; i < 4; i++){
-    if (stopTime[i] != 0) {
-      RPM[i]= ((stopTime[i]- startTime[i]) / (updateInterval-1) * blades); 
-      pulseCount[i] = 0;
-    }
-  }
 }

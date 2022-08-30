@@ -1,3 +1,4 @@
+https://chiptron.cz/news.php?readmore=1271
 -----Funkčnost----------------------------
 Termočlánky	ok
 Multiplixer	ok
