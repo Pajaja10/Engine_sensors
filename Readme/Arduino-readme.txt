@@ -18,6 +18,9 @@ BMP280		??
 EEPROM 1	??
 EEPROM 2	??
 CAN		    ??
+WIFI Updater  ??
+https://iotespresso.com/how-to-set-partitions-in-esp32/
+
 
 -----Layout svorkovnice-----------------------
 tlak olej
