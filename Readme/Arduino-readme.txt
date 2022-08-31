@@ -1,3 +1,4 @@
+převodník na hovno, lze obejít:
 https://chiptron.cz/news.php?readmore=1271
 -----Funkčnost----------------------------
 Termočlánky	ok
@@ -15,9 +16,9 @@ hladina   OK, stejné jako teplota - odporové, pouze rovnice křivky - až vyzk
 HALL      STM8 ??
 https://makersportal.com/blog/2018/10/3/arduino-tachometer-using-a-hall-effect-sensor-to-measure-rotations-from-a-fan
 
-BMP280		??
-EEPROM 1	??
-EEPROM 2	??
+BMP280		OK ale teplota +- asi 3°C??
+EEPROM 1	adresa OK, takže asi budu umět zapisovat
+EEPROM 2	adresa taky OK
 CAN		    ??
 WIFI Updater  OK - pozor, program má moc, musíš dát dev module a without issfts nebo tak nějak
 https://iotespresso.com/how-to-set-partitions-in-esp32/
