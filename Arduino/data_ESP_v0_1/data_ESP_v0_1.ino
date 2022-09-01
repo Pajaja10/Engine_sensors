@@ -398,17 +398,32 @@ void tiskniBT(){
   SerialBT.print("Teplota termočlánků: ");
   for (int i = 0; i < 2; i++){
     SerialBT.print(thermo[i]);
-    if (i != 2) SerialBT.print(",");
+    if (i != 1) SerialBT.print(",");
   }
   SerialBT.println();
  
-  //analog-multiplexer
+  //Napětí baterky
+  SerialBT.print("Napětí baterky: ");
+  SerialBT.print(hodnotaAnalog[0]);
+  SerialBT.println("V");
+ 
+  
+  //Teploty-multiplexer
+  SerialBT.print("Teplota VDO: ");
   for (int i = 1; i < 5; i++){
-    SerialBT.print(napetiSIG[i]);
-    if (i != 2) SerialBT.print(",");
+    SerialBT.print(hodnotaAnalog[i]);
+    if (i != 4) SerialBT.print(",");
   }
   SerialBT.println();
- 
+ /*
+ //Hladiny-multiplexer
+  SerialBT.print("Hladina: ");
+  for (int i = 5; i < 7; i++){
+    SerialBT.print(hodnotaAnalog[i]);
+    if (i != 6) SerialBT.print(",");
+  }
+  SerialBT.println();
+ */
 }
 
 
