@@ -171,6 +171,14 @@ BluetoothSerial SerialBT;
 
 unsigned char dataCan[4][7];    // 4 řádky se 6 proměnnýma
 
+//-----------------------------------------
+//----BMP280------------------------------
+
+#include <Adafruit_BMP280.h>
+#include <Adafruit_Sensor.h>
+#define BMP280_ADRESA (0x76)
+Adafruit_BMP280 bmp;
+float teplota;
 
 //-----------------------------------------------
 // Proměnné pro loop-----------------------------
@@ -266,6 +274,9 @@ void setup() {
     Serial.println("Starting CAN failed!");
     while (1);
   }
+ //-------------------------------------------------
+ //BMP280
+ bmp.begin(BMP280_ADRESA);
 
 }
 //------------------------------------------------------------------------------------------------------------
@@ -277,25 +288,18 @@ void loop() {
   delay(1);
   //----------------------
   
-  newmillis = millis();
-
-  nactiAnalog();
-  upravaDat();
- 
+  newmillis = millis(); // začátek cyklu
  
   // Nacitani sensorů
   if (newmillis - oldmillis > 250 ) {
     nactiThermo();
+    teplota = bmp.readTemperature();
+    nactiAnalog();
+    upravaDat();
     tiskniBT();
     oldmillis = millis();
     }
 
-    
- 
-
-  
-  
-  //canSender(0);
 
 }
 
@@ -384,20 +388,27 @@ void tiskni(){
 
 
 void tiskniBT(){
-  SerialBT.println("Tisknu data");
-  
-  //analog-multiplexer
-  for (int i = 0; i < 16; i++){
-    SerialBT.print(napetiSIG[i]);
-    SerialBT.print(",");
-  }
-  
-  //termočlánky
-  for (int i = 0; i < 4; i++){
+ //BMP280
+  SerialBT.println("Tisknu data:");
+  SerialBT.print("Vnitřní teplota: ");
+  SerialBT.print(teplota);
+  SerialBT.println("°C");
+ 
+ //termočlánky
+  SerialBT.print("Teplota termočlánků: ");
+  for (int i = 0; i < 2; i++){
     SerialBT.print(thermo[i]);
-    if (i != 4) SerialBT.print(",");
+    if (i != 2) SerialBT.print(",");
   }
   SerialBT.println();
+ 
+  //analog-multiplexer
+  for (int i = 1; i < 5; i++){
+    SerialBT.print(napetiSIG[i]);
+    if (i != 2) SerialBT.print(",");
+  }
+  SerialBT.println();
+ 
 }
 
 
