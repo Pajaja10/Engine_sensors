@@ -20,7 +20,8 @@ BMP280		OK ale teplota +- asi 3°C??
 EEPROM 1	adresa OK, takže asi budu umět zapisovat
 EEPROM 2	adresa taky OK
 CAN		    ??
-WIFI Updater  OK - pozor, program má moc, musíš dát dev module a without issfts nebo tak nějak
+WIFI Updater  NOK - tak změna, při použití wifi přijdeš o mnoho pinů, pro mě nepoužitelné
+pozor, program má moc, musíš dát dev module a without issfts nebo tak nějak
 https://iotespresso.com/how-to-set-partitions-in-esp32/
 
 
