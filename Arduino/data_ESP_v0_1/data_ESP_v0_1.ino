@@ -2,7 +2,7 @@
 //---------------ESP-WROOM-32--------------------
 //-----------------------------------------------
 //-----------------------------------------------
-
+/*
 //--------------WIFI updater------------------------
 // IP: 192.168.1.130
 
@@ -18,9 +18,6 @@ const char* password = "asdf1234";
 
 WebServer server(80);
 
-/*
- * Login page
- */
 
 const char* loginIndex =
  "<form name='loginForm'>"
@@ -59,14 +56,12 @@ const char* loginIndex =
     "}"
     "else"
     "{"
-    " alert('Error Password or Username')/*displays error message*/"
+    " alert('Error Password or Username')"
     "}"
     "}"
 "</script>";
 
-/*
- * Server Index Page
- */
+
 
 const char* serverIndex =
 "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>"
@@ -105,19 +100,22 @@ const char* serverIndex =
  "});"
  "</script>";
 //---------------------------------------------------------
-
+*/
 
 //-----------------------------------------------
 // Multiplexer 16 kanálů CD74HC4067--------------
 
 // nastavení ovládacích pinů S0-S3 multiplexeru
-const byte pinS0 = 27;
-const byte pinS1 = 14;
-const byte pinS2 = 25;
-const byte pinS3 = 26;
+#include <ESP32AnalogRead.h>
+ESP32AnalogRead adc; //potlačení nelinearity
+
+const unsigned char pinS0 = 27;
+const unsigned char pinS1 = 14;
+const unsigned char pinS2 = 25;
+const unsigned char pinS3 = 26;
 
 // nastavení výstupního pinu SIG multiplexeru
-const byte pinSIG = 12;
+const unsigned char pinSIG = 12;
 
 //Proměnné analogu
 float napetiSIG[16];
@@ -137,11 +135,11 @@ float hodnotaAnalog[16];
 #include "max6675.h"    //knihovna
 
 //nastavení pinů
-const byte thermoDO  = 15;
-const byte thermoCLK =  2;
+const unsigned char thermoDO  = 15;
+const unsigned char thermoCLK =  2;
 //const int thermoCS0 = 35;   // bohužel mám  na input only!!!!! takže neumí vypnout
-const byte thermoCS1 = 32;
-const byte thermoCS2 = 33;
+const unsigned char thermoCS1 = 32;
+const unsigned char thermoCS2 = 33;
 //const int thermoCS3 = 34;   // bohužel mám  na input only!!!!! takže neumí vypnout
 
 //MAX6675 thermo0(thermoCLK, thermoCS0, thermoDO);
@@ -150,7 +148,7 @@ MAX6675 thermo2(thermoCLK, thermoCS2, thermoDO);
 //MAX6675 thermo3(thermoCLK, thermoCS3, thermoDO);
 
 //Proměnné termočlánku
-byte thermo[2];
+int thermo[2];
 
 //-----------------------------------------------
 // Bluetooth-------------------------------------
@@ -192,10 +190,11 @@ unsigned long oldmillis = 0;
   
 void setup() {
   //----------------------------------------------- 
-  // komunikace po sériové lince rychlostí 9600 baud
+  // komunikace po sériové lince rychlostí 9600 baud, spuštění I2C
   Serial.begin(9600);
+  Wire.begin();
  
-  //-------------WIFI updater-------------------------
+  /*//-------------WIFI updater-------------------------
   // Connect to WiFi network
   WiFi.begin(ssid, password);
   Serial.println("");
@@ -211,7 +210,7 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-  /*use mdns for host name resolution*/
+ 
   if (!MDNS.begin(host)) { //http://esp32.local
     Serial.println("Error setting up MDNS responder!");
     while (1) {
@@ -219,7 +218,7 @@ void setup() {
     }
   }
   Serial.println("mDNS responder started");
-  /*return index page which is stored in serverIndex */
+
   server.on("/", HTTP_GET, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", loginIndex);
@@ -228,7 +227,7 @@ void setup() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", serverIndex);
   });
-  /*handling uploading firmware file */
+
   server.on("/update", HTTP_POST, []() {
     server.sendHeader("Connection", "close");
     server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
@@ -241,7 +240,7 @@ void setup() {
         Update.printError(Serial);
       }
     } else if (upload.status == UPLOAD_FILE_WRITE) {
-      /* flashing firmware to ESP*/
+
       if (Update.write(upload.buf, upload.currentSize) != upload.currentSize) {
         Update.printError(Serial);
       }
@@ -254,7 +253,7 @@ void setup() {
     }
   });
   server.begin();
-
+*/
   //------------------------------------------------------
   //Multiplexer
   // nastavení ovládacích pinů jako výstupních
@@ -262,7 +261,9 @@ void setup() {
   pinMode(pinS1, OUTPUT); 
   pinMode(pinS2, OUTPUT); 
   pinMode(pinS3, OUTPUT);
-  Wire.begin();
+  adc.attach(pinSIG);
+  
+  
 
   //----------------------------------------------- 
   // Bluetooth
@@ -284,8 +285,8 @@ void setup() {
 
 void loop() {
   //-----------------WIFi updaret-------------
-  server.handleClient();
-  delay(1);
+ /* server.handleClient();
+  delay(1);*/
   //----------------------
   
   newmillis = millis(); // začátek cyklu
@@ -335,7 +336,8 @@ int nactiAnalog(){
      digitalWrite(ovladaciPiny[j], kanaly[i][j]);
     }
     // načtení analogové hodnoty z pinu SIG
-    napetiSIG[i] = analogRead(pinSIG);
+    napetiSIG[i] = String(adc.readVoltage()).toFloat();
+    SerialBT.println(napetiSIG[i]+10);
   }
 }
 
@@ -343,7 +345,7 @@ int nactiAnalog(){
 
 void upravaDat() {
   for (int i = 0; i < 16; i ++){
-    if ( i == 0) {hodnotaAnalog[i] = napetiSIG[i] * 5 * 3.3/4095;}
+    if ( i == 0) {hodnotaAnalog[i] = napetiSIG[i]* 3.3 * 5 /4095 ;}
     if (i > 0 && i < 5) { hodnotaAnalog[i] = napetiSIG[i] * 3.3/4095 + 0.1;      // ESP má problém od 0, začíná od 0,1 do 3,2; realne napeti na pinu
                           hodnotaAnalog[i] = hodnotaAnalog[i] * 220 / (3.3 - hodnotaAnalog[i]);    //obyč dělič napětí, výstup odpor na čidle, pull-up 10k POZOR dal jsem 220R
                           //hodnotaAnalog[i] = 418.47 * pow(hodnotaAnalog[i], -0.364);   //rovnice dle excel - celá křivka
@@ -389,7 +391,7 @@ void tiskni(){
 
 void tiskniBT(){
  //BMP280
-  SerialBT.println("Tisknu data:");
+  SerialBT.println("----------Tisknu data:---------------");
   SerialBT.print("Vnitřní teplota: ");
   SerialBT.print(teplota);
   SerialBT.println("°C");
@@ -432,8 +434,8 @@ void tiskniBT(){
 
 void nactiThermo(){
   //thermo[0] = (thermo0.readCelsius()/0.25);
-  thermo[1] = (thermo1.readCelsius());
-  thermo[2] = (thermo2.readCelsius());
+  thermo[0] = (thermo1.readCelsius());
+  thermo[1] = (thermo2.readCelsius());
   //thermo[3] = (thermo3.readCelsius()/0.25);
 }
 
